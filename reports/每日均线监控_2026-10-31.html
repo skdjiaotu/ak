@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日均线监控 2026-10-31</title>
+<style>
+  body { font-family: -apple-system, "Microsoft YaHei", sans-serif; margin: 0; padding: 24px; background: #f5f6f8; color: #222; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  th, td { padding: 12px 10px; text-align: center; font-size: 14px; border-bottom: 1px solid #eee; }
+  th { background: #2f3b52; color: #fff; font-weight: 600; }
+  tr:hover td { background: #fafbfc; }
+  td.nm { font-weight: 600; }
+  .pct { color: #999; font-size: 12px; }
+  .err { color: #d43d3d; }
+  .summary { margin-top: 20px; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); font-size: 14px; line-height: 1.8; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; margin-right: 6px; }
+  .b-red { background: #fdeaea; color: #d43d3d; }
+  .b-green { background: #e6f4ec; color: #1a8f5c; }
+  .b-yellow { background: #fdf3e0; color: #d4a017; }
+  .note { margin-top: 16px; color: #999; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>宽基指数 MA30 / MA60 每日监控</h1>
+  <div class="sub">数据日期：2026-10-31 &nbsp;|&nbsp; 数据源：新浪财经日 K</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>指数</th><th>现价</th><th>MA30</th><th>vs MA30</th><th>MA60</th><th>vs MA60</th><th>MA30/60</th><th>趋势信号</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='nm'>创业板指</td><td>2413.6</td><td>2978.1</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-19.0%</span></td><td>3221.5</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-25.1%</span></td><td style='color:#1a8f5c'>空头</td><td style='color:#d43d3d;font-weight:600'>趋势未确认(MA60下方)</td></tr><tr><td class='nm'>科创50</td><td>1160.8</td><td>1451.4</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-20.0%</span></td><td>1555.8</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-25.4%</span></td><td style='color:#1a8f5c'>空头</td><td style='color:#d43d3d;font-weight:600'>趋势未确认(MA60下方)</td></tr><tr><td class='nm'>深证成指</td><td>10833.8</td><td>12467.2</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-13.1%</span></td><td>13220.9</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-18.1%</span></td><td style='color:#1a8f5c'>空头</td><td style='color:#d43d3d;font-weight:600'>趋势未确认(MA60下方)</td></tr><tr><td class='nm'>沪深300</td><td>3985.5</td><td>4285.4</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-7.0%</span></td><td>4450.6</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-10.5%</span></td><td style='color:#1a8f5c'>空头</td><td style='color:#d43d3d;font-weight:600'>趋势未确认(MA60下方)</td></tr><tr><td class='nm'>上证50</td><td>2742.1</td><td>2806.4</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-2.3%</span></td><td>2861.5</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-4.2%</span></td><td style='color:#1a8f5c'>空头</td><td style='color:#d43d3d;font-weight:600'>趋势未确认(MA60下方)</td></tr><tr><td class='nm'>中证500</td><td>6266.2</td><td>7165.4</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-12.5%</span></td><td>7499.2</td><td style='color:#1a8f5c'>跌破<br><span class='pct'>-16.4%</span></td><td style='color:#1a8f5c'>空头</td><td style='color:#d43d3d;font-weight:600'>趋势未确认(MA60下方)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <div><span class="badge b-red">站上 MA60</span> 中期趋势右侧确认的指数：0 个 （暂无）</div>
+    <div><span class="badge b-yellow">接近 MA60</span> 处于临界、值得盯盘的指数：0 个</div>
+    <div><span class="badge b-green">今日金叉</span> MA30 上穿 MA60：0 个 （暂无）</div>
+    <div style="margin-top:12px">判断口径：<b>站上 MA60</b> = 中期趋势右侧确认，是择时加仓的关键触发条件；<b>MA30 上穿 MA60（金叉）</b> = 短期趋势转强的领先信号。</div>
+  </div>
+
+  <div class="note">⚠️ 本报告基于公开数据量化生成，仅供研究参考，不构成投资建议。</div>
+</div>
+</body>
+</html>

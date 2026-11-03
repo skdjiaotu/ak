@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A股市场择时模型</title>
+<style>
+body{font-family:-apple-system,'Microsoft YaHei',sans-serif;margin:0;background:#f5f6f8;color:#222;}
+.wrap{max-width:960px;margin:0 auto;padding:24px;}
+h1{font-size:22px;margin:0 0 4px;}
+.sub{color:#888;font-size:13px;margin-bottom:20px;}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.card h2{font-size:16px;margin:0 0 14px;border-left:4px solid #3b82f6;padding-left:8px;}
+.score{display:flex;align-items:baseline;gap:16px;}
+.score-num{font-size:48px;font-weight:700;color:#f39c12;}
+.score-sig{font-size:18px;font-weight:500;}
+.advice{margin-top:8px;font-size:15px;color:#444;}
+.warn{margin-top:8px;font-size:13px;color:#c0392b;}
+.dims{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.dim{background:#fafafa;border-radius:10px;padding:14px;}
+.dim-head{display:flex;justify-content:space-between;font-size:14px;font-weight:500;}
+.dim-head .w{color:#999;font-weight:400;font-size:12px;}
+.dim-score{font-size:28px;font-weight:700;margin:6px 0;}
+.dim-score span{font-size:13px;font-weight:400;color:#999;}
+.dim-bar{height:6px;background:#eee;border-radius:3px;overflow:hidden;}
+.dim-fill{height:100%;background:#3b82f6;border-radius:3px;}
+.dim-note{font-size:12px;color:#666;margin-top:8px;line-height:1.5;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #eee;}
+th{background:#fafafa;color:#666;font-weight:600;}
+.note{font-size:12px;color:#999;margin-top:16px;line-height:1.7;}
+.concl{background:#fff8e1;border-radius:10px;padding:14px;font-size:13px;color:#795548;line-height:1.7;}
+@media(max-width:720px){.dims{grid-template-columns:repeat(2,1fr);}}
+</style></head><body><div class="wrap">
+<h1>A 股市场择时模型（买方视角）</h1>
+<div class="sub">数据时间 2026-10-31 13:04:55 · 仅供研究参考，不构成投资建议</div>
+
+<div class="card">
+  <div class="score">
+    <div class="score-num">52.5</div>
+    <div>
+      <div class="score-sig">市场机会分 / 100</div>
+      <div class="advice">建议：中性，控制仓位、精选标的</div>
+      <div class="warn">⚠️ 杠杆资金在撤离，即使估值偏低也需控制抄底节奏</div>
+    </div>
+  </div>
+</div>
+
+<div class="card"><h2>四维打分</h2>
+  <div class="dims">
+        <div class="dim">
+          <div class="dim-head"><span>估值</span><span class="w">权重 35%</span></div>
+          <div class="dim-score">50<span>/100</span></div>
+          <div class="dim-bar"><div class="dim-fill" style="width:50%"></div></div>
+          <div class="dim-note">宽基 PE 分位均值 47.3%</div>
+        </div>
+        <div class="dim">
+          <div class="dim-head"><span>技术</span><span class="w">权重 15%</span></div>
+          <div class="dim-score">70<span>/100</span></div>
+          <div class="dim-bar"><div class="dim-fill" style="width:70%"></div></div>
+          <div class="dim-note">宽基距前高平均回撤 -31.8%</div>
+        </div>
+        <div class="dim">
+          <div class="dim-head"><span>资金</span><span class="w">权重 20%</span></div>
+          <div class="dim-score">25<span>/100</span></div>
+          <div class="dim-bar"><div class="dim-fill" style="width:25%"></div></div>
+          <div class="dim-note">杠杆资金撤离（去杠杆）</div>
+        </div>
+        <div class="dim">
+          <div class="dim-head"><span>情绪</span><span class="w">权重 30%</span></div>
+          <div class="dim-score">65<span>/100</span></div>
+          <div class="dim-bar"><div class="dim-fill" style="width:65%"></div></div>
+          <div class="dim-note">恐慌度分位均值 71.1%（偏恐慌）</div>
+        </div></div>
+</div>
+
+<div class="card"><h2>回测验证（近3年 · 估值+趋势双确认）</h2>
+  <table><thead><tr>
+    <th>指数</th><th>择时收益</th><th>持有收益</th><th>择时回撤</th><th>持有回撤</th><th>持仓占比</th><th>超额</th>
+  </tr></thead><tbody>
+        <tr>
+          <td>沪深300</td>
+          <td style="color:#c0392b">-10.5%</td>
+          <td>3.7%</td>
+          <td style="color:#27ae60">-20.9%</td>
+          <td>-21.4%</td>
+          <td>31%</td>
+          <td>-14.2pp</td>
+        </tr>
+        <tr>
+          <td>创业板指</td>
+          <td style="color:#c0392b">-13.7%</td>
+          <td>9.9%</td>
+          <td style="color:#27ae60">-31.5%</td>
+          <td>-44.8%</td>
+          <td>32%</td>
+          <td>-23.5pp</td>
+        </tr>
+        <tr>
+          <td>中证500</td>
+          <td style="color:#c0392b">-20.8%</td>
+          <td>5.1%</td>
+          <td style="color:#27ae60">-27.2%</td>
+          <td>-30.6%</td>
+          <td>31%</td>
+          <td>-25.9pp</td>
+        </tr>
+        <tr>
+          <td>科创50</td>
+          <td style="color:#c0392b">-28.5%</td>
+          <td>17.9%</td>
+          <td style="color:#27ae60">-32.4%</td>
+          <td>-47.4%</td>
+          <td>32%</td>
+          <td>-46.4pp</td>
+        </tr></tbody></table>
+  <div class="concl">
+    近3年属单边下跌市，择时策略收益跑输满仓持有，但<b>最大回撤显著收窄</b>——
+    这证明择时的价值在于「控回撤、活下来」，而非「赚更多」。单边熊市中应降低仓位预期，
+    等待右侧趋势确认（如站上 MA60）后再加仓，避免越跌越买接飞刀。
+  </div>
+</div>
+
+<div class="note">⚠️ 本模型基于公开数据量化（蛋卷基金 / 新浪财经 / 东方财富 / 乐咕乐股），仅供研究参考，不构成投资建议。</div>
+</div></body></html>

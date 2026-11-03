@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF 轮动策略系统化分析报告 · 2026-10-31</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: -apple-system, "Microsoft YaHei", sans-serif; margin: 0; padding: 32px; background: #f5f6f8; color: #222; line-height: 1.7; }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 28px; }
+  h2 { font-size: 19px; margin: 34px 0 12px; padding-left: 10px; border-left: 4px solid #d43d3d; }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 20px 24px; margin-bottom: 16px; }
+  .verdict { background: #fff7f7; border: 1px solid #f3caca; border-radius: 10px; padding: 18px 24px; margin: 16px 0; }
+  .verdict b { color: #d43d3d; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin: 12px 0; font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #eee; }
+  th { background: #2f3b52; color: #fff; font-weight: 600; }
+  td.hl { background: #fdf0f0; font-weight: 700; color: #d43d3d; }
+  td.pos { color: #d43d3d; font-weight: 600; }
+  td.neg { color: #1a8f5c; font-weight: 600; }
+  .note { color: #999; font-size: 12px; margin-top: 8px; }
+  .risk { background: #fff8e6; border: 1px solid #f0dca0; border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .risk h4 { margin: 0 0 8px; color: #8a6d1a; font-size: 15px; }
+  .risk ul { margin: 0; padding-left: 20px; }
+  .risk li { margin: 6px 0; font-size: 14px; }
+  .tag { display: inline-block; background: #eef1f6; color: #555; border-radius: 4px; padding: 1px 8px; font-size: 12px; margin-right: 6px; }
+  code { background: #f0f2f5; padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: "JetBrains Mono", Consolas, monospace; }
+  @media print { body { background: #fff; } .card, .verdict, .risk { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ETF 轮动策略系统化分析报告</h1>
+  <div class="sub">分析日期：2026-10-31 &nbsp;|&nbsp; 回测区间：2019-01 ~ 2026-10（含 A 股真实交易成本）&nbsp;|&nbsp; 仅供研究，不构成投资建议</div>
+
+  <div class="card">
+    <h3>一、结论摘要</h3>
+    <p>经过「策略横向对比 → 因子归因 → 温和倾斜 → 组合叠加 → 样本外验证」五步分析，得到一条完整的结论链：</p>
+    <div class="verdict">
+      最优可落地策略 = <b>多资产扩池 + MA20 趋势过滤 + 动量选券 + 趋势强度倾斜（cap 封顶）+ 波动率目标控制</b>。<br>
+      样本外验证确认其 <b>不是过拟合</b>：训练段定出的参数在完全未见的验证段依然跑赢等权基准。
+    </div>
+  </div>
+
+  <h2>二、本地策略横向对比（谁最优）</h2>
+  <div class="card">
+    <p>项目内三大类策略跑最新数据后的绩效差距巨大：</p>
+    <table>
+      <thead><tr><th>策略</th><th>累计收益</th><th>年化</th><th>最大回撤</th><th>夏普</th><th>Calmar</th></tr></thead>
+      <tbody>
+        <tr><td>扩池+波动率目标（ETF轮动）</td><td class="pos">+772.2%</td><td>33.5%</td><td>-8.4%</td><td>2.19</td><td>92.3</td></tr>
+        <tr><td>趋势强度加权（ETF轮动）</td><td class="pos">+1151.6%</td><td>40.0%</td><td>-18.0%</td><td>1.66</td><td>64.1</td></tr>
+        <tr><td>MA20+动量Top5（ETF轮动）</td><td class="pos">+531.6%</td><td>27.8%</td><td>-15.6%</td><td>1.50</td><td>34.0</td></tr>
+        <tr><td>MA60+止损止盈（单标的趋势）</td><td class="pos">+21.8%</td><td>—</td><td>-7.1%</td><td>0.49</td><td>—</td></tr>
+        <tr><td>估值+趋势双确认（择时）</td><td class="neg">-15.4%</td><td>—</td><td>-31.5%</td><td>—</td><td>—</td></tr>
+        <tr><td>买入持有（基准）</td><td class="pos">+36.4%</td><td>—</td><td>-57.1%</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <p><b>结论：轮动 &gt; 择时 &gt; 单标的趋势 &gt; 买入持有。</b>ETF 轮动体系才是真正能打的；单标的趋势/择时策略的价值是控回撤，不是赚钱。</p>
+  </div>
+
+  <h2>三、趋势强度加权为何收益爆表（归因）</h2>
+  <div class="card">
+    <p>「趋势强度加权」+1151.6% 的收益曾引发质疑：是 alpha 还是参数运气？归因结论：<b>二者兼有，但因子本身有真东西。</b></p>
+    <table>
+      <thead><tr><th>加权方式</th><th>累计</th><th>夏普</th><th>回撤</th><th>最大集中度</th></tr></thead>
+      <tbody>
+        <tr><td>等权 Top5</td><td>536%</td><td>1.49</td><td>-15.8%</td><td>50%</td></tr>
+        <tr><td>趋势强度加权</td><td>1151%</td><td>1.66</td><td>-18.0%</td><td class="hl">98%</td></tr>
+      </tbody>
+    </table>
+    <p>爆表的主因是<b>把 98% 仓位押在单一最强标的</b>（变相追单品种），且收益与调仓频率强负相关（越频繁换手赚越多，隐含"高频追涨"）。但其分年度 8 年每年都跑赢等权，说明趋势强度因子本身有稳定的正向贡献。</p>
+  </div>
+
+  <h2>四、温和倾斜（cap 封顶）—— 保留 alpha、不赌单标的</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>方案</th><th>累计</th><th>夏普</th><th>回撤</th><th>Calmar</th></tr></thead>
+      <tbody>
+        <tr><td>等权 Top5（基准）</td><td>536%</td><td>1.49</td><td>-15.8%</td><td>34.0</td></tr>
+        <tr><td>趋势强度（原始 98% 集中）</td><td>1151%</td><td>1.66</td><td>-18.0%</td><td>64.1</td></tr>
+        <tr><td class="hl">封顶 cap=0.4</td><td class="hl">979%</td><td>1.65</td><td>-17.9%</td><td>54.6</td></tr>
+        <tr><td>混合 α=0.7</td><td>926%</td><td>1.64</td><td>-17.3%</td><td>53.5</td></tr>
+      </tbody>
+    </table>
+    <p>给单券权重设 cap 上限（硬截断），把 98% 集中压回可控区间，仍保留约 8 成 alpha，夏普几乎不输原始版。softmax 平滑方案反而稀释了稀疏信号，证明<b>硬封顶优于软平滑</b>。</p>
+  </div>
+
+  <h2>五、组合叠加：扩池 + 波动率目标 + cap 倾斜</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>方案</th><th>累计</th><th>夏普</th><th>回撤</th><th>Calmar</th></tr></thead>
+      <tbody>
+        <tr><td>扩池等权 + 波动率目标</td><td>772%</td><td>2.19</td><td>-8.4%</td><td>92.3</td></tr>
+        <tr><td class="hl">cap=0.4 倾斜 + 波动率</td><td class="hl">1687%</td><td class="hl">2.46</td><td>-9.2%</td><td class="hl">184.4</td></tr>
+        <tr><td>cap=0.5 倾斜 + 波动率</td><td>1761%</td><td>2.46</td><td>-9.2%</td><td>192.4</td></tr>
+        <tr><td>cap=0.4 + 波动率 + 容忍带90%</td><td>1526%</td><td>2.41</td><td>-9.1%</td><td>166.9</td></tr>
+      </tbody>
+    </table>
+    <p>把 cap 倾斜加进「扩池+波动率目标」框架，产生了真正的「1+1&gt;2」：夏普、收益、回撤三个维度同时改善，且 cap 在 0.3~0.5 区间结果平坦，<b>参数不敏感、稳健</b>。</p>
+  </div>
+
+  <h2>六、样本外验证（排除过拟合）</h2>
+  <div class="card">
+    <p>用时间切割前向检验：<b>训练段 2019-2023 定参，验证段 2024-2026 检验</b>（参数从未见过验证段数据）。</p>
+    <table>
+      <thead><tr><th>参数来源</th><th>验证段累计</th><th>验证段夏普</th><th>年化</th><th>回撤</th></tr></thead>
+      <tbody>
+        <tr><td>等权基准（对照）</td><td>128.6%</td><td>2.24</td><td>36.7%</td><td>-8.4%</td></tr>
+        <tr><td class="hl">训练段最优 cap=0.5+调仓3</td><td class="hl">276.3%</td><td class="hl">2.84</td><td>64.9%</td><td>-11.2%</td></tr>
+        <tr><td>验证段自身最优（天花板）</td><td>290.4%</td><td>2.99</td><td>67.3%</td><td>-9.6%</td></tr>
+      </tbody>
+    </table>
+    <p>四条判据全部通过：① 训练段参数在验证段仍跑赢等权（夏普 2.84 &gt; 2.24）；② 训练段最优 = 全样本最优，参数零漂移；③ 训练段参数达到验证段理论天花板的 95%；④ 验证段年化 64.9% 反而更高，无收益塌方。</p>
+    <div class="verdict">结论：<b>「趋势强度倾斜 + 扩池 + 波动率目标」是真实有效的策略，过拟合已基本排除。</b></div>
+  </div>
+
+  <h2>七、最终推荐配置</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>要素</th><th>参数</th></tr></thead>
+      <tbody>
+        <tr><td>资产池</td><td>14 只多资产 ETF（宽基 + 红利 + 海外 + 黄金 + 原油 + 30年国债）</td></tr>
+        <tr><td>趋势过滤</td><td>收盘价站上 MA20（门槛 ≥2 只才持仓，否则空仓）</td></tr>
+        <tr><td>选券</td><td>近 20 日动量排序，选全部站上 MA 的候选</td></tr>
+        <tr><td>加权</td><td>趋势强度（价格/MA 偏离度）倾斜，单券权重封顶 cap=0.4~0.5</td></tr>
+        <tr><td>调仓</td><td>每 3~5 个交易日（保守起步建议 5 天）</td></tr>
+        <tr><td>波动率目标</td><td>18%（超阈值按比例降仓，剩余持现金）</td></tr>
+      </tbody>
+    </table>
+    <p>回测表现：<b>收益 1687%、夏普 2.46、回撤 -9.2%、Calmar 184</b>（cap=0.4，调仓5）。</p>
+  </div>
+
+  <div class="risk">
+    <h4>⚠️ 风险提示（务必在实盘前了解）</h4>
+    <ul>
+      <li><b>夏普 2.46 偏高</b>：回测按收盘价成交，实盘 T+1 限制、盘中冲击成本、ETF 折溢价会让它打折，实际拿到 1.5~2.0 已属优秀。</li>
+      <li><b>超额本质是"追强"风格</b>：在 2024-2026 强势行情里是顺风，长期震荡市超额会收窄。正确定位是"趋势顺风期增强器"。</li>
+      <li><b>调仓 3 天属高频</b>：真实高频换手成本比脚本的"权重差折算"更重，建议保守起步用调仓 5 天。</li>
+      <li><b>空仓风控是安全网</b>：跌破 MA20 全池空仓的内置规则必须保留，它是回撤能控制在 -9% 的关键。</li>
+      <li><b>本报告仅供量化研究，不构成任何投资建议。</b></li>
+    </ul>
+  </div>
+
+  <div class="note">分析脚本：analyze_trend_strength.py（归因）、analyze_mild_tilt.py（倾斜）、analyze_final_stack.py（叠加）、analyze_walkforward.py（样本外）。数据来源：AKShare 前复权日线。</div>
+</div>
+</body>
+</html>

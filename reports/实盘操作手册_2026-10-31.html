@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF 轮动策略实盘操作手册</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: -apple-system, "Microsoft YaHei", sans-serif; margin: 0; padding: 32px; background: #f5f6f8; color: #222; line-height: 1.75; }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 28px; }
+  h2 { font-size: 19px; margin: 34px 0 12px; padding-left: 10px; border-left: 4px solid #d43d3d; }
+  h3 { font-size: 16px; margin: 20px 0 8px; }
+  .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 20px 24px; margin-bottom: 16px; }
+  .flow { background: #f7f9fc; border: 1px solid #e3e8ef; border-radius: 10px; padding: 18px 24px; margin: 16px 0; font-size: 15px; }
+  .flow .step { margin: 10px 0; padding-left: 8px; }
+  .flow .arrow { color: #d43d3d; font-weight: 700; }
+  .verdict { background: #fff7f7; border: 1px solid #f3caca; border-radius: 10px; padding: 16px 22px; margin: 16px 0; }
+  .verdict b { color: #d43d3d; }
+  .risk { background: #fff8e6; border: 1px solid #f0dca0; border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .risk h4 { margin: 0 0 8px; color: #8a6d1a; font-size: 15px; }
+  .risk ul, .card ul { margin: 0; padding-left: 20px; }
+  .risk li, .card li { margin: 8px 0; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin: 12px 0; font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #eee; }
+  th { background: #2f3b52; color: #fff; font-weight: 600; }
+  td.hl { background: #fdf0f0; font-weight: 700; color: #d43d3d; }
+  td.l { text-align: left; }
+  code { background: #f0f2f5; padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: Consolas, monospace; }
+  .note { color: #999; font-size: 12px; margin-top: 10px; }
+  @media print { body { background: #fff; } .card, .flow, .verdict, .risk { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ETF 轮动策略 · 实盘操作手册</h1>
+  <div class="sub">版本 2026-10-31 &nbsp;|&nbsp; 策略：多资产扩池 + MA20 趋势过滤 + 趋势强度倾斜 + 波动率目标 18% &nbsp;|&nbsp; 仅供个人使用，不构成投资建议</div>
+
+  <div class="card">
+    <h3>一句话记住整个流程</h3>
+    <div class="verdict"><b>盘后算指令 → 次日早盘/尾盘按规则买 → 跌破 MA20 就走，不扛单。</b></div>
+  </div>
+
+  <h2>一、每日执行时序</h2>
+  <div class="card">
+    <div class="flow">
+      <div class="step"><span class="arrow">T 日（今天）15:00 收盘</span> —— 收盘价定型</div>
+      <div class="step"><span class="arrow">T 日盘后（15:30 后）</span> —— 运行指令生成器，算出「买什么/卖什么」</div>
+      <div class="step" style="padding-left:28px;color:#777;">&nbsp;&nbsp;&nbsp;命令：<code>.venv/Scripts/python.exe live_trading.py --total 500000</code></div>
+      <div class="step"><span class="arrow">T 日</span> —— 只出指令，<b>当天不动手</b></div>
+      <div class="step"><span class="arrow">T+1 日（下一交易日）</span> —— 早盘或尾盘按规则执行下单</div>
+    </div>
+    <p><b>为什么是「盘后算、次日买」？</b> 因为信号依赖收盘价（收盘价 vs MA20、近 20 日动量），只有收盘后数据才定型，所以必须次日执行。</p>
+  </div>
+
+  <h2>二、买入时点：早盘 vs 尾盘（你关心的）</h2>
+  <div class="card">
+    <p>两种时点都可行，对你（50 万大资金 + 求稳）建议：<b>常规用尾盘买入，低开时才抢早盘。</b></p>
+    <table>
+      <thead><tr><th>次日开盘情况</th><th>买入方式</th></tr></thead>
+      <tbody>
+        <tr><td class="l">平开或低开</td><td class="l">可早盘就开始分批买（机会好，别错过）</td></tr>
+        <tr><td class="l">高开 &gt; 2%</td><td class="l">别追，等到尾盘价格稳定再买，甚至改到次日</td></tr>
+        <tr><td class="l">常规情况</td><td class="l">尾盘 14:30 后用限价单买入（价格稳定、冲击小）</td></tr>
+      </tbody>
+    </table>
+    <h3>尾盘买入的操作要点</h3>
+    <ul>
+      <li><b>14:30~14:45 下单</b>，留时间成交（收盘 15:00）。</li>
+      <li>用<b>限价单</b>挂「现价附近」，尾盘价格基本定型、波动小。</li>
+      <li><b>下单前最后核对一次</b>：这只 ETF 尾盘有没有跌破 MA20？跌破就别买，等重新站上。</li>
+    </ul>
+    <div class="risk"><h4>尾盘买入的隐藏风险</h4>
+      <ul>
+        <li>若当天是<b>单边大涨</b>，尾盘可能买在当日最高点附近，次日回落会浮亏开局。</li>
+        <li>但尾盘买入也<b>天然规避了早盘冲高回落</b>，对你求稳的偏好反而更合适。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>三、建仓节奏（50 万大资金）</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>批次</th><th>时机</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>第一批</td><td>建仓首日</td><td>每只买目标金额的 <b>50%</b></td></tr>
+        <tr><td>第二批</td><td>次日</td><td>补足剩余 50%</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>50 万单笔下单会冲击盘口（尤其原油/商品 ETF），<b>分 2 天建仓</b>摊薄冲击成本。</li>
+      <li>原油/商品类 ETF 波动剧烈，建仓/减仓再分 <b>2~3 笔</b>。</li>
+    </ul>
+  </div>
+
+  <h2>四、日常纪律（决定赚不赚钱的核心）</h2>
+  <div class="card">
+    <ul>
+      <li><b>每天收盘后跑一次</b> <code>live_trading.py</code>，看有没有调仓信号。</li>
+      <li><b>只在调仓日动手</b>（策略每 5 个交易日重选一次，其余时间拿着不动，别手痒）。</li>
+      <li><b>跌破 MA20 就走</b>：这是回撤能压到 -9% 的核心安全网，<b>必须执行，绝不扛单、绝不补跌</b>。</li>
+      <li><b>全部用限价单</b>，不用市价单。</li>
+      <li><b>单券不超过总资金 35%</b>（工具已内置 25% 硬上限 + 商品 ETF 额外降权）。</li>
+    </ul>
+    <div class="verdict">纪律 &gt; 预测：这套策略赚的不是「看得准」，而是「跌破就走、不扛单」。<b>80% 的亏损都来自该止损时舍不得走。</b></div>
+  </div>
+
+  <h2>五、风控红线（必须遵守）</h2>
+  <div class="risk">
+    <h4>⚠️ 五条铁律</h4>
+    <ul>
+      <li><b>单券权重 ≤ 35%</b>：不把大资金押在单一只 ETF 上，尤其商品类。</li>
+      <li><b>跌破 MA20 无条件离场</b>：这是策略回撤能控制在 -9% 的根本，破了纪律就全废。</li>
+      <li><b>限价单下单</b>：50 万以上市价单会打穿盘口。</li>
+      <li><b>不追高</b>：次日高开 &gt;2% 就等，不情绪化追涨。</li>
+      <li><b>分批建仓</b>：首日 50%、次日补足；商品 ETF 再分 2~3 笔。</li>
+    </ul>
+  </div>
+
+  <h2>六、三个必须接受的现实</h2>
+  <div class="card">
+    <ul>
+      <li><b>别期待回测的夏普 2.46</b>：那是收盘价成交的假设值。实盘有 T+1、盘中冲击、ETF 折溢价，实际拿到 <b>1.5~2.0 已很优秀</b>。</li>
+      <li><b>超额是「追强」风格，有顺风期和逆风期</b>：2024-2026 强势行情顺风，长期震荡市会收窄。别在连续跑输时崩溃割肉。</li>
+      <li><b>先小资金验证再放大</b>：建议先拿 5~10 万跑 2~3 个月，验证流程和纪律，跑顺了再加到 50 万。</li>
+    </ul>
+  </div>
+
+  <h2>七、一句话操作清单</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>时间</th><th>动作</th></tr></thead>
+      <tbody>
+        <tr><td class="l">每个交易日收盘后</td><td class="l">跑 <code>live_trading.py</code> 拿调仓指令</td></tr>
+        <tr><td class="l">下一交易日早盘/尾盘</td><td class="l">按「平开/低开早盘买、高开尾盘买」规则，限价单执行</td></tr>
+        <tr><td class="l">跌破 MA20 时</td><td class="l">无条件卖出该 ETF，不扛单</td></tr>
+        <tr><td class="l">每月末</td><td class="l">回看持仓记录，复盘「是策略错了还是我没执行」</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">本手册基于公开数据量化研究整理，仅供个人投资参考，不构成任何投资建议。下单前请自行核对实时价格，盈亏自负。</div>
+</div>
+</body>
+</html>
