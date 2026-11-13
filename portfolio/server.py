@@ -215,6 +215,7 @@ DASHBOARDS = {
     "gem": {"title": "创业板位置驾驶舱", "module": "gem_position.dashboard"},
     "star": {"title": "科创板位置驾驶舱", "module": "star_position.dashboard"},
     "sentiment": {"title": "市场情绪驾驶舱", "module": "sentiment.dashboard"},
+    "fund_flow": {"title": "资金流向总览", "module": "fund_flow.dashboard"},
 }
 
 

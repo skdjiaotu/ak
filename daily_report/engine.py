@@ -57,6 +57,34 @@ def collect_fund_flow() -> Dict:
     result = fund_assess(data)
     mg = result["margin"]
     nb = result["northbound"]
+
+    # ---- 融资余额历史统计（峰值/距峰值/近10日逐日变化）----
+    margin_rows = data["margin"]
+    margin_stats = {}
+    rzye_rows = [m for m in margin_rows if m.get("rzye")]
+    if rzye_rows:
+        vals = [m["rzye"] / 1e8 for m in rzye_rows]
+        peak = max(vals)
+        peak_idx = vals.index(peak)
+        cur = vals[-1]
+        margin_stats = {
+            "cur_yi": cur,
+            "peak_yi": peak,
+            "peak_date": rzye_rows[peak_idx]["date"],
+            "from_peak": round((cur / peak - 1) * 100, 1) if peak else None,
+            "n_days": len(rzye_rows),
+            "first_date": rzye_rows[0]["date"],
+            "last_date": rzye_rows[-1]["date"],
+            "chg_60d": round((vals[-1] / vals[-61] - 1) * 100, 1) if len(vals) > 60 and vals[-61] else None,
+            "daily_10": [
+                {
+                    "date": rzye_rows[i]["date"],
+                    "chg_yi": round((rzye_rows[i]["rzye"] - rzye_rows[i - 1]["rzye"]) / 1e8, 1),
+                }
+                for i in range(len(rzye_rows) - 9, len(rzye_rows))
+            ],
+        }
+
     return {
         "margin_balance": mg["cur_balance"],          # 元
         "margin_balance_20d": _fmt_pct(mg["bal_20d"] / 100) if mg["bal_20d"] is not None else None,
@@ -69,6 +97,7 @@ def collect_fund_flow() -> Dict:
         "north_cum_yi": nb["last_cum_net_buy_yi"],
         "north_net_60d_yi": nb["net_60d_yi"],
         "north_signal": nb["foreign_signal"],
+        "margin_stats": margin_stats,
         "signals": result["signals"],
         "notes": result["notes"],
     }

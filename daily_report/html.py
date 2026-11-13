@@ -67,6 +67,28 @@ def render_html(report, overall) -> str:
     for n in overall["notes"]:
         notes_html += f"<li>{n}</li>"
 
+    # 融资余额历史统计行
+    margin_stats = ff.get("margin_stats", {})
+    mg_rows = ""
+    if margin_stats:
+        for d in margin_stats.get("daily_10", []):
+            chg = d["chg_yi"]
+            cls = "chg-red" if chg < 0 else ("chg-green" if chg > 0 else "chg-flat")
+            sign = f"{chg:+,.1f}" if chg else "0.0"
+            mg_rows += f"""
+          <tr>
+            <td>{d['date'][5:]}</td>
+            <td class="{cls}">{sign}</td>
+          </tr>"""
+    mg_summary = ""
+    if margin_stats:
+        mg_summary = f"""
+    <div class="kv" style="margin-bottom:8px">
+      <div><span class="k">历史峰值</span><br><b>{_fmt(margin_stats.get('peak_yi'), 0)}</b> 亿（{margin_stats.get('peak_date')}）</div>
+      <div><span class="k">距峰值回撤</span><br><b>{_pct(margin_stats.get('from_peak'))}</b></div>
+      <div><span class="k">60 日变化</span><br><b>{_pct(margin_stats.get('chg_60d'))}</b></div>
+    </div>"""
+
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -100,6 +122,9 @@ def render_html(report, overall) -> str:
   .lvl-orange {{ background: #faeeda; color: #993c1d; }}
   .lvl-yellow {{ background: #f1efe8; color: #5f5e5a; }}
   .lvl-green {{ background: #e1f5ee; color: #0f6e56; }}
+  .chg-red {{ color: #a32d2d; font-weight: 500; }}
+  .chg-green {{ color: #0f6e56; font-weight: 500; }}
+  .chg-flat {{ color: #888780; }}
   .overall {{ font-size: 18px; font-weight: 600; margin-bottom: 12px; }}
   .overall .sig {{ font-size: 16px; padding: 4px 16px; }}
   ul {{ padding-left: 20px; }}
@@ -145,12 +170,18 @@ def render_html(report, overall) -> str:
       <div><span class="k">融资余额 20 日变化</span><br><b>{_pct(ff['margin_balance_20d'])}</b></div>
       <div><span class="k">融资余额/流通市值</span><br><b>{_fmt(ff['margin_ratio'])}</b>%</div>
     </div>
+    {mg_summary}
     <ul style="margin-top:12px">
       <li>杠杆资金判定：<b>{ff['margin_trend']}</b></li>
       <li>情绪状态：<b>{ff['margin_emotion']}</b></li>
       <li>北向净买入：已于 <b>{ff['north_nan_date']}</b> 停止披露（最后披露 {ff['north_last_date']}）</li>
       <li>停更前外资态度：<b>{ff['north_signal']}</b></li>
     </ul>
+    <h3 style="margin-top:16px;font-size:14px;font-weight:600">融资余额近 10 个交易日环比变化（亿元）</h3>
+    <table style="max-width:320px">
+      <thead><tr><th class="name">日期</th><th>环比变化</th></tr></thead>
+      <tbody>{mg_rows}</tbody>
+    </table>
   </div>
 
   <div class="card">

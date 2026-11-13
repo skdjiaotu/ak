@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A股板块轮动热点研判 · 2026-11-13</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root { --red:#d81e06; --green:#0a8f4f; --bg:#f7f8fa; --card:#fff; --ink:#1a1a1a; --sub:#666; --line:#e6e8eb; --blue:#2563eb; }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body { font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--ink); line-height:1.7; }
+  .wrap { max-width:960px; margin:0 auto; padding:24px 20px 60px; }
+  h1 { font-size:26px; margin-bottom:4px; }
+  .meta { color:var(--sub); font-size:13px; margin-bottom:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:18px; }
+  h2 { font-size:18px; margin-bottom:14px; padding-left:10px; border-left:4px solid var(--blue); }
+  h3 { font-size:15px; margin:14px 0 8px; }
+  .up { color:var(--red); font-weight:600; }
+  .down { color:var(--green); font-weight:600; }
+  .tldr { background:linear-gradient(135deg,#f0f5ff,#fff); border:1px solid #cfe0ff; }
+  .tldr ul { list-style:none; }
+  .tldr li { padding:6px 0; border-bottom:1px dashed var(--line); }
+  .tldr li:last-child { border-bottom:none; }
+  .tag { display:inline-block; font-size:12px; padding:2px 9px; border-radius:10px; margin-right:6px; }
+  .tag.hot { background:#ffe9e6; color:var(--red); }
+  .tag.def { background:#e6f6ee; color:var(--green); }
+  .tag.theme { background:#fff4e0; color:#b87700; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0; }
+  th,td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--line); }
+  th { background:#fafbfc; color:var(--sub); font-weight:600; white-space:nowrap; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .rank-badge { display:inline-block; width:22px; height:22px; line-height:22px; text-align:center; border-radius:6px; font-size:12px; color:#fff; background:#94a3b8; }
+  .rank-1 { background:var(--red); } .rank-2 { background:#f07b4f; } .rank-3 { background:#e6a23c; }
+  .note { font-size:12.5px; color:var(--sub); margin-top:8px; }
+  .src { font-size:12px; color:#9aa; margin-top:6px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:720px){ .grid2{grid-template-columns:1fr;} }
+  .chartbox { width:100%; height:340px; }
+  .btn { cursor:pointer; font-size:12px; color:var(--blue); background:none; border:1px solid var(--blue); border-radius:6px; padding:3px 10px; margin-right:8px; }
+  .btn.active { background:var(--blue); color:#fff; }
+  .warn { background:#fff8f0; border-left:4px solid #e6a23c; padding:12px 16px; border-radius:8px; font-size:13.5px; }
+  .disc { font-size:12px; color:#999; margin-top:24px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>A股板块轮动热点研判</h1>
+  <div class="meta">数据时点：2026-11-13 午盘（~11:40 盘中快照）· 对照：2026-11-12 收盘 · 来源：东财/同花顺/腾讯自选股板块接口、Wind 口径资金流、机构复盘（格上基金/中财网）</div>
+
+  <div class="card tldr">
+    <h2>结论先行</h2>
+    <ul>
+      <li><b>今日盘面是「缩量高低切换」</b>：沪指 +0.22%（3663.71）独红，创业板指 <span class="down">-1.47%</span>、科创50 <span class="down">-0.48%</span>（盘中一度 +2% 后跳水）、北证50 <span class="down">-1.53%</span>。半日成交 9794 亿，较昨日缩量约 2421 亿，是典型存量资金内部分化。</li>
+      <li><b>真正的轮动主线只有一条</b>：资金从拥挤的「海外算力硬件（光模块/CPO/PCB）」撤出，向「国产半导体设备/芯片 + 低位红利 + 主题题材」切换，<b>科技内部不是整体退潮，而是「海外链→国产链」的换手</b>。</li>
+      <li><b>触发变量明确</b>：隔夜英伟达 CEO 黄仁勋辞任（英伟达跌 4.34%）+ 美 10 月 CPI 超预期 → 海外 AI 链定价锚松动，高拥挤板块集中兑现。</li>
+      <li><b>今日三大赚钱效应点</b>：① 影视院线/AI 短剧（幸福蓝海 +20%）；② 猪肉/养殖（生猪期货 6 连涨）；③ 银行等红利（江苏银行等创历史新高，第三批互换便利 1000 亿建仓高股息）。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>一、指数与广度：权重护盘、成长普跌</h2>
+    <div class="grid2">
+      <div>
+        <table>
+          <tr><th>指数</th><th class="num">午盘涨跌</th><th class="num">收盘点位</th></tr>
+          <tr><td>上证指数</td><td class="num up">+0.22%</td><td class="num">3663.71</td></tr>
+          <tr><td>深证成指</td><td class="num down">-0.56%</td><td class="num">11135.40</td></tr>
+          <tr><td>创业板指</td><td class="num down">-1.47%</td><td class="num">2472.53</td></tr>
+          <tr><td>科创50</td><td class="num down">-0.48%</td><td class="num">—</td></tr>
+          <tr><td>北证50</td><td class="num down">-1.53%</td><td class="num">—</td></tr>
+        </table>
+      </div>
+      <div>
+        <table>
+          <tr><th>广度指标</th><th class="num">数值</th></tr>
+          <tr><td>半日成交额</td><td class="num">9794 亿（缩量 2421 亿）</td></tr>
+          <tr><td>上涨家数</td><td class="num up">2342 家</td></tr>
+          <tr><td>下跌家数</td><td class="num down">2996 家</td></tr>
+          <tr><td>涨停 / 跌停</td><td class="num">41 / 8</td></tr>
+          <tr><td>主力资金净额</td><td class="num down">约 -208 亿（早间口径）</td></tr>
+        </table>
+      </div>
+    </div>
+    <p class="note">「指数分化 + 个股普跌」的组合，说明当前是<b>少数权重撑指数、多数成长股调整</b>的局部抱团行情，属于 market-state 框架里「局部抱团（风险）」类型——指数不弱但赚钱效应集中在少数方向，追高性价比差。</p>
+  </div>
+
+  <div class="card">
+    <h2>二、申万一级行业：涨跌幅与主力资金（午盘）</h2>
+    <div id="chart1" class="chartbox"></div>
+    <div style="margin-top:10px">
+      <button class="btn active" id="btn-chart">看图</button>
+      <button class="btn" id="btn-table">看表</button>
+    </div>
+    <div id="table1" style="display:none">
+      <table>
+        <tr><th>行业</th><th class="num">涨跌幅</th><th class="num">主力净流入</th></tr>
+        <tr><td>银行</td><td class="num up">+1.46%</td><td class="num up">+6.41 亿</td></tr>
+        <tr><td>煤炭</td><td class="num up">+0.62%</td><td class="num up">+1.96 亿</td></tr>
+        <tr><td>石油石化</td><td class="num up">+0.37%</td><td class="num up">+2.53 亿</td></tr>
+        <tr><td>电子</td><td class="num down">-0.89%</td><td class="num down">-126.24 亿</td></tr>
+      </table>
+      <p class="note">早盘 10:28 涨幅榜：煤炭 +1.64%、石油石化 +1.40%、农林牧渔 +0.89%；跌幅：通信 -1.91%、建筑材料 -0.98%、医药生物 -0.87%。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>三、主线拆解：三股力量在角力</h2>
+    <div class="grid2">
+      <div>
+        <h3><span class="tag def">防御/红利</span> 撑指数的钱</h3>
+        <p>银行（江苏银行、南京银行、青岛银行、成都银行创历史新高）、煤炭、石油石化。<b>逻辑</b>：42 家上市银行前三季营收 +7.81%、归母净利 +3.78%；第三批互换便利 1000 亿元建仓偏好高股息标的；国际油价拉升。</p>
+      </div>
+      <div>
+        <h3><span class="tag theme">主题题材</span> 赚钱效应的钱</h3>
+        <p>AI 短剧/影视院线（抖音短剧版权中心开放互动剧、海外短剧 App 前十中国占 9 席、活跃用户超 1.5 亿）、猪肉（生猪期货主连 6 连涨）、白酒（古井贡酒 +5.10%）。</p>
+      </div>
+      <div>
+        <h3><span class="tag hot">算力硬件</span> 被兑现的钱</h3>
+        <p>CPO/光模块/PCB 领跌：天孚通信 -8.88%、源杰科技 -8.48%、新易盛 -6.47%、中际旭创 -6.21%。<b>原因</b>：黄仁勋辞任 + 美 CPI 超预期，海外 AI 链定价锚松动。</p>
+      </div>
+      <div>
+        <h3>关键结构：科技内部换手</h3>
+        <p>「半导体净流入」与「电子净流出 126 亿」<b>同时为真、并不矛盾</b>——资金在英伟达产业链 vs 国产替代链之间做选择题：<b>买</b>半导体设备（+10.26 亿）、中芯国际、摩尔线程、沐曦、寒武纪；<b>卖</b>光模块、CPO、PCB。中芯国际赵海军称「2027 年晶圆产能将非常紧缺」。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>四、今日领涨方向（申万二级/概念）</h2>
+    <table>
+      <tr><th>#</th><th>板块</th><th>类型</th><th class="num">涨跌幅</th><th>领涨股（代码）</th></tr>
+      <tr><td><span class="rank-badge rank-1">1</span></td><td>影视院线</td><td>申万二级</td><td class="num up">+5.09%</td><td>幸福蓝海 300528.SZ +20.01%</td></tr>
+      <tr><td><span class="rank-badge rank-2">2</span></td><td>电视广播Ⅱ</td><td>申万二级</td><td class="num up">+3.39%</td><td>湖北广电 000665.SZ +10.10%</td></tr>
+      <tr><td><span class="rank-badge rank-3">3</span></td><td>养殖业</td><td>申万二级</td><td class="num up">+2.31%</td><td>天邦食品 002124.SZ +10.00%</td></tr>
+      <tr><td>4</td><td>饲料</td><td>申万二级</td><td class="num up">+2.26%</td><td>金新农 002548.SZ +10.06%</td></tr>
+      <tr><td>5</td><td>商用车</td><td>申万二级</td><td class="num up">+1.94%</td><td>江淮汽车 600418.SH +4.67%</td></tr>
+      <tr><td>6</td><td>摩托车及其他</td><td>申万二级</td><td class="num up">+1.84%</td><td>千里科技 601777.SH +4.95%</td></tr>
+    </table>
+    <p class="note">跌幅居前：元件、CPO、光伏设备（永臻股份跌停）、中船系、医疗服务（CRO）、小金属、房地产。</p>
+  </div>
+
+  <div class="card">
+    <h2>五、主力净流入个股 TOP（盘中）</h2>
+    <div id="chart2" class="chartbox"></div>
+    <p class="note">净流入居前以<b>国产算力链 + 半导体设备 + 传媒</b>为主；净卖出则以光模块/PCB 龙头为主（中际旭创 -20.83 亿、新易盛 -16.54 亿、生益科技 -10.75 亿）。</p>
+  </div>
+
+  <div class="card">
+    <h2>六、估值位置：科技拥挤度已高</h2>
+    <table>
+      <tr><th>板块</th><th class="num">PE-TTM</th><th class="num">PE 历史分位</th><th class="num">PB-LF</th><th class="num">PB 历史分位</th><th>提示</th></tr>
+      <tr><td>半导体</td><td class="num">45.06x</td><td class="num">65.38%</td><td class="num">7.08x</td><td class="num">94.24%</td><td>利润端尚可，<b>资产/收入端估值已处高位</b>，短期获利兑现压力大</td></tr>
+      <tr><td>中证5G通信</td><td class="num">26.24x</td><td class="num">近1年 3.31%</td><td class="num">—</td><td class="num">—</td><td>估值处近1年低位，通信或结束 7 周连跌</td></tr>
+    </table>
+    <p class="src">数据：Wind，截至 2026-11-12。</p>
+  </div>
+
+  <div class="card warn">
+    <h2 style="border-left-color:#e6a23c">七、后续观察要点（条件化判断）</h2>
+    <ul style="margin-left:18px">
+      <li><b>量能</b>：成交额能否稳定在万亿元以上——今日缩量说明是场内资金推动，增量资金不足，反弹持续性存疑。</li>
+      <li><b>国产算力二次承接</b>：半导体设备/国产芯片今日已现冲高回落，回调后能否二次承接，决定这条主线是否成立。</li>
+      <li><b>风格切换是否趋稳</b>：目前「银行涨、成长跌」的反向关系明显，若红利与成长不再跷跷板，才说明市场进入新平衡。</li>
+      <li><b>外部变量</b>：12 月美联储加息定价、英伟达 CEO 更迭的后续影响，会持续传染 A 股 AI 硬件链。</li>
+    </ul>
+  </div>
+
+  <div class="disc">
+    免责声明：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。<br>
+    数据说明：本文数据取自东财/同花顺/腾讯自选股板块接口及 Wind 口径资金流（2026-11-13 午盘、2026-11-12 收盘），半日数据与全天收盘可能存在偏差，收盘后请以交易所与 Wind 终值为准。部分资讯为媒体/研报二次转述，需核实原文。
+  </div>
+</div>
+
+<script>
+(function(){
+  var ch1 = echarts.init(document.getElementById('chart1'));
+  ch1.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: 70, right: 70, top: 30, bottom: 30 },
+    xAxis: { type: 'value' },
+    yAxis: { type: 'category', data: ['电子','石油石化','煤炭','银行'] },
+    series: [{
+      type: 'bar',
+      data: [
+        { value: -126.24, itemStyle: { color: '#0a8f4f' } },
+        { value: 2.53, itemStyle: { color: '#d81e06' } },
+        { value: 1.96, itemStyle: { color: '#d81e06' } },
+        { value: 6.41, itemStyle: { color: '#d81e06' } }
+      ],
+      label: { show: true, position: 'right', formatter: '{c} 亿' }
+    }]
+  });
+
+  var ch2 = echarts.init(document.getElementById('chart2'));
+  var names = ['蓝色光标','寒武纪','源杰科技','通富微电','吉视传媒','北方华创','星网锐捷','摩尔线程','华虹宏力','中芯国际','沐曦股份','华海清科'];
+  var vals  = [23.46,13.83,9.61,8.61,5.91,5.25,4.59,4.24,3.35,2.73,2.44,1.94];
+  ch2.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: 90, right: 40, top: 20, bottom: 30 },
+    xAxis: { type: 'value', name: '主力净流入(亿)' },
+    yAxis: { type: 'category', data: names.slice().reverse() },
+    series: [{
+      type: 'bar',
+      data: vals.slice().reverse().map(function(v){ return { value: v, itemStyle: { color: '#d81e06' } }; }),
+      label: { show: true, position: 'right', formatter: '{c} 亿' }
+    }]
+  });
+
+  var btnChart = document.getElementById('btn-chart');
+  var btnTable = document.getElementById('btn-table');
+  btnChart.onclick = function(){
+    document.getElementById('chart1').style.display = 'block';
+    document.getElementById('table1').style.display = 'none';
+    btnChart.classList.add('active'); btnTable.classList.remove('active');
+    ch1.resize();
+  };
+  btnTable.onclick = function(){
+    document.getElementById('chart1').style.display = 'none';
+    document.getElementById('table1').style.display = 'block';
+    btnChart.classList.remove('active'); btnTable.classList.add('active');
+  };
+})();
+</script>
+</body>
+</html>

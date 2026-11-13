@@ -20,6 +20,7 @@ const activeSrc = computed(() => {
 })
 
 const titleMap = {
+  fund_flow: '资金流向总览',
   gem: '创业板位置驾驶舱',
   star: '科创板位置驾驶舱',
   sentiment: '市场情绪驾驶舱',
