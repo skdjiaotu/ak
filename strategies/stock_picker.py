@@ -212,39 +212,28 @@ def build_price_panel(codes, cache_path):
     panel = pd.concat([cached, pd.DataFrame(closes)], axis=1).sort_index()
     os.makedirs(os.path.dirname(cache_path), exist_ok=True)
     panel.to_csv(cache_path)
-    return panel[codes]
+    # 只返回实际拉取到的列（缺失代码由后续 reindex 兜底为 NaN）
+    available = [c for c in codes if c in panel.columns]
+    return panel[available]
 
 
 def build_fundamental_panel(codes, cache_path):
-    """财务因子面板（增量缓存）：缓存缺失的代码才拉取。"""
+    """财务因子面板（增量缓存）：缓存缺失的代码才拉取。
+
+    缓存结构约定：{因子key: {代码: Series}}（与 stock_factor_backtest 的 DataFrame 缓存
+    不兼容，故用独立文件名，避免读到旧格式导致 KeyError）。
+    """
     cached = {}
     if os.path.exists(cache_path):
         with open(cache_path, "rb") as f:
             cached = pickle.load(f)
 
-    missing = [c for c in codes if c not in cached.get("roe", {})]
-    if not missing:
-        return {k: v for k, v in cached.items()}
+    # 缓存结构校验：若缓存是旧 DataFrame 格式（历史遗留），丢弃重建
+    def _is_valid(d):
+        return isinstance(d, dict) and all(isinstance(v, dict) for v in d.values())
 
-    roe, gm, rg = {}, {}, {}
-    for i, c in enumerate(missing):
-        try:
-            f = fetch_fundamental(c)
-            if not f["roe"].notna().any():
-                time.sleep(2.0)
-                f = fetch_fundamental(c)
-            roe[c], gm[c], rg[c] = f["roe"], f["gross_margin"], f["revenue_growth"]
-        except Exception as e:
-            print(f"  [跳过财务] {c}: {str(e)[:50]}")
-        if (i + 1) % 20 == 0:
-            print(f"  已拉财务 {i+1}/{len(missing)}")
-        time.sleep(1.5)
-
-    # 合并缓存与新增
-    for k, new_d in (("roe", roe), ("gross_margin", gm), ("revenue_growth", rg)):
-        merged = dict(cached.get(k, {}))
-        merged.update(new_d)
-        cached[k] = merged
+    if not _is_valid(cached):
+        cached = {}
 
     def to_panel(d):
         d = {k: v for k, v in d.items() if v is not None and v.notna().any()}
@@ -256,41 +245,74 @@ def build_fundamental_panel(codes, cache_path):
         idx = pd.date_range(p.index.min(), p.index.max(), freq="B")
         return p.reindex(idx).ffill()
 
-    result = {"roe": to_panel(cached["roe"]), "gross_margin": to_panel(cached["gross_margin"]),
-              "revenue_growth": to_panel(cached["revenue_growth"])}
-    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-    with open(cache_path, "wb") as f:
-        pickle.dump(cached, f)
-    return result
+    missing = [c for c in codes if c not in cached.get("roe", {})]
+    if missing:
+        roe, gm, rg = {}, {}, {}
+        for i, c in enumerate(missing):
+            try:
+                f = fetch_fundamental(c)
+                if not f["roe"].notna().any():
+                    time.sleep(2.0)
+                    f = fetch_fundamental(c)
+                roe[c], gm[c], rg[c] = f["roe"], f["gross_margin"], f["revenue_growth"]
+            except Exception as e:
+                print(f"  [跳过财务] {c}: {str(e)[:50]}")
+            if (i + 1) % 20 == 0:
+                print(f"  已拉财务 {i+1}/{len(missing)}")
+            time.sleep(1.5)
+
+        # 合并缓存与新增
+        for k, new_d in (("roe", roe), ("gross_margin", gm), ("revenue_growth", rg)):
+            merged = dict(cached.get(k, {}))
+            merged.update(new_d)
+            cached[k] = merged
+
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+        with open(cache_path, "wb") as f:
+            pickle.dump(cached, f)
+
+    # 统一返回 DataFrame 格式（无论是否命中缓存）
+    return {"roe": to_panel(cached.get("roe", {})),
+            "gross_margin": to_panel(cached.get("gross_margin", {})),
+            "revenue_growth": to_panel(cached.get("revenue_growth", {}))}
 
 
 def build_valuation_panel(codes, cache_path):
-    """估值因子面板（增量缓存）：缓存缺失的代码才拉取。"""
+    """估值因子面板（增量缓存）：缓存缺失的代码才拉取。
+
+    缓存结构约定：{因子key: {代码: Series}}，返回 DataFrame（日期×代码）。
+    """
     cached = {}
     if os.path.exists(cache_path):
         with open(cache_path, "rb") as f:
             cached = pickle.load(f)
 
-    missing = [c for c in codes if c not in cached.get("pe_pct", {})]
-    if not missing:
-        return cached
+    def _is_valid(d):
+        return isinstance(d, dict) and all(isinstance(v, dict) for v in d.values())
 
-    pe = dict(cached.get("pe_pct", {}))
-    pb = dict(cached.get("pb_pct", {}))
-    for i, c in enumerate(missing):
-        try:
-            v = fetch_valuation(c)
-            pe[c], pb[c] = v["pe_pct"], v["pb_pct"]
-        except Exception as e:
-            print(f"  [跳过估值] {c}: {str(e)[:50]}")
-        if (i + 1) % 20 == 0:
-            print(f"  已拉估值 {i+1}/{len(missing)}")
-        time.sleep(0.4)
-    result = {"pe_pct": _to_panel(pe), "pb_pct": _to_panel(pb)}
-    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-    with open(cache_path, "wb") as f:
-        pickle.dump(result, f)
-    return result
+    if not _is_valid(cached):
+        cached = {}
+
+    missing = [c for c in codes if c not in cached.get("pe_pct", {})]
+    if missing:
+        pe = dict(cached.get("pe_pct", {}))
+        pb = dict(cached.get("pb_pct", {}))
+        for i, c in enumerate(missing):
+            try:
+                v = fetch_valuation(c)
+                pe[c], pb[c] = v["pe_pct"], v["pb_pct"]
+            except Exception as e:
+                print(f"  [跳过估值] {c}: {str(e)[:50]}")
+            if (i + 1) % 20 == 0:
+                print(f"  已拉估值 {i+1}/{len(missing)}")
+            time.sleep(0.4)
+        cached = {"pe_pct": pe, "pb_pct": pb}
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+        with open(cache_path, "wb") as f:
+            pickle.dump(cached, f)
+
+    return {"pe_pct": _to_panel(cached.get("pe_pct", {})),
+            "pb_pct": _to_panel(cached.get("pb_pct", {}))}
 
 
 def _to_panel(d):
@@ -511,14 +533,22 @@ def main():
     panel = build_price_panel(codes, price_cache)
     print(f"  面板: {panel.shape[0]} 日 × {panel.shape[1]} 只, "
           f"{panel.index[0].date()} ~ {panel.index[-1].date()}")
+    # 对齐：以价格面板实际拉到的列为准（个别票拉取失败会缺失）
+    codes = list(panel.columns)
+    pool = pool[pool["代码"].isin(codes)].reset_index(drop=True)
+
+    # 数据清洗：前向填充停牌/滞后的价格（避免 NaN 传染到打分与回测）
+    panel = panel.ffill()
+    # 截断到所有票都有数据的共同起点之后（保留足够回测长度即可）
+    panel = panel.dropna(how="all")
 
     # 3. 财务面板
-    fund_cache = os.path.join(CACHE_DIR, "fundamental.pkl")
+    fund_cache = os.path.join(CACHE_DIR, "fundamental_stockpicker.pkl")
     print("\n[3/5] 构建财务因子面板（新浪季度，带缓存）...")
     fund_panels = build_fundamental_panel(codes, fund_cache)
 
     # 4. 估值面板
-    val_cache = os.path.join(CACHE_DIR, "valuation.pkl")
+    val_cache = os.path.join(CACHE_DIR, "valuation_stockpicker.pkl")
     print("\n[4/5] 构建估值因子面板（东财历史分位，带缓存）...")
     val_panels = build_valuation_panel(codes, val_cache)
 
